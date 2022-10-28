@@ -27,6 +27,7 @@ invprob = InverseProblem([trial], model,
     ]
 )
 
-alg = SplineCollocate(maxiters=1000, solver=BFGS(), interp=CubicSpline)
+# alg = SplineCollocate(maxiters=1000, solver=BFGS(), interp=CubicSpline)
+alg = StochGlobalOpt(maxiters=100)
 result = calibrate(invprob, alg)
 uconvert.(u"°C", result .* u"K")
