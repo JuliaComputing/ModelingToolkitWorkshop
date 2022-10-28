@@ -1,6 +1,6 @@
 module RLC
 
-using ModelingToolkit, Plots, DifferentialEquations
+using ModelingToolkit
 
 @variables t
 @connector function Pin(;name)
@@ -68,12 +68,16 @@ function ConstantVoltage(;name, V = 1.0)
     extend(ODESystem(eqs, t, [], ps; name=name), oneport)
 end
 
+end
+
+using .RLC
+using ModelingToolkit, Plots, DifferentialEquations
 L = C = V = R = 1.0
-@named inductor = Inductor(L=L)
-@named resistor = Resistor(R=R)
-@named capacitor = Capacitor(C=C)
-@named source = ConstantVoltage(V=V)
-@named ground = Ground()
+@named inductor = RLC.Inductor(L=L)
+@named resistor = RLC.Resistor(R=R)
+@named capacitor = RLC.Capacitor(C=C)
+@named source = RLC.ConstantVoltage(V=V)
+@named ground = RLC.Ground()
 
 rlc_eqs = [
           connect(source.p, resistor.p)
@@ -93,5 +97,3 @@ u0 = [
 prob = ODEProblem(sys, u0, (0, 10.0))
 sol = solve(prob)
 plot(sol)
-
-end
