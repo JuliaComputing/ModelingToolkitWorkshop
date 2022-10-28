@@ -7,16 +7,17 @@ using DataFrames, CSV
 using OptimizationOptimJL
 using DataInterpolations
 
-model = initialize_model(datapath=joinpath(@__DIR__, "..", "data", "USA_AZ_Phoenix.722780_TMY2.mos"))
+datapath = joinpath(@__DIR__, "..", "data", "USA_AZ_Phoenix.722780_TMY2.mos")
+model = initialize_model(;datapath)
 
-day = ustrip(u"s", 24u"hr")
-n_days = 5.0
-t0 = 2.0 * day
-tend = t0 + n_days
+df = BuildingModelLibrary.getdata(datapath)
+idx_range = 4560:4728+1
+ts = df[idx_range, :t] .- df[idx_range[1], :t]
+tspan = (0.0, ts[end-1])
 
 data = CSV.read(joinpath(@__DIR__, "..", "data", "building_data.csv"), DataFrame)
 
-trial = Trial(data, model; tspan=(t0, tend), alg=QNDF(autodiff=false))
+trial = Trial(data, model; tspan, alg=QNDF(autodiff=false))
 
 invprob = InverseProblem([trial], model,
     [
@@ -28,4 +29,4 @@ invprob = InverseProblem([trial], model,
 
 alg = SplineCollocate(maxiters=1000, solver=BFGS(), interp=CubicSpline)
 result = calibrate(invprob, alg)
-uconvert.(u"°C", result.*u"K")
+uconvert.(u"°C", result .* u"K")
