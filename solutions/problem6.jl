@@ -35,7 +35,7 @@ ed = simconfig(prob; alg = Tsit5())
 RSIZE = 250
 model = CTESN(RSIZE)
 #Generate surrogate
-surrogate = surrogatize(ed, model)
+surrogate = surrogatize(ed, model; verbose = true)
 
 #visualise data
 dashboard_data = generate_dashboard_data(surrogate, ed)
